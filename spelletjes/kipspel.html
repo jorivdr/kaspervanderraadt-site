@@ -67,7 +67,17 @@
     <button id="chooseHaan">Haan</button>
   </div>
 
+
   <canvas id="gameCanvas" width="400" height="300"></canvas>
+<div id="timer">Tijd: 0 seconden</div>
+<input type="text" id="spelerNaam" placeholder="Voer je naam in">
+<button id="opslaanScore">Score opslaan</button>
+
+<div id="scorebord">
+  <h3>🏆 Top 5 snelste tijden</h3>
+  <ul id="scores"></ul>
+</div>
+
   <div class="controls" id="controls">
     <button id="btnLeft">Links</button>
     <button id="btnJump">Spring</button>
@@ -89,8 +99,16 @@
     const controls = document.getElementById('controls');
     const characterSelect = document.getElementById('characterSelect');
 
-    chooseKip.addEventListener('click', () => selectCharacter('kip'));
-    chooseHaan.addEventListener('click', () => selectCharacter('haan'));
+ chooseKip.addEventListener('click', () => {
+    selectCharacter('kip');
+    startTimer(); // <-- timer start hier
+});
+
+chooseHaan.addEventListener('click', () => {
+    selectCharacter('haan');
+    startTimer(); // <-- timer start hier
+});
+
     restartBtn.addEventListener('click', (e) => {
   e.preventDefault();
   window.location.href = window.location.href;
@@ -286,6 +304,12 @@
             kip.dy = -8;
             kasperHits++;
             if (kasperHits >= 3) {
+stopTimer();
+  window.stopTimer = function() {
+    clearInterval(timerInterval);
+    eindTijd = ((Date.now() - startTijd) / 1000).toFixed(3); // afronden op duizendsten
+    document.getElementById('timer').textContent = `Eindtijd: ${eindTijd} seconden`;
+}
   kasperActive = false;
   restartBtn.style.display = 'block';
   document.getElementById('victoryMessage').style.display = 'block';
@@ -401,6 +425,85 @@ document.getElementById('backToStart').addEventListener('click', () => {
   window.location.href = 'index.html';
 });
 </script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+  import { getDatabase, ref, set, push, onValue, query, orderByChild, limitToFirst } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAgaJvSnaDe_2XJbEDpoug6PwKBYG9Zi5Y",
+    authDomain: "website-kasper-20d0d.firebaseapp.com",
+    databaseURL: "https://website-kasper-20d0d-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "website-kasper-20d0d",
+    storageBucket: "website-kasper-20d0d.firebasestorage.app",
+    messagingSenderId: "405878767630",
+    appId: "1:405878767630:web:468a39dbdc59820337fc5f"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  let startTijd;
+  let timerInterval;
+  let eindTijd;
+
+  window.startTimer = function() {
+    startTijd = Date.now();
+    timerInterval = setInterval(updateTimer, 1000);
+  }
+
+  window.stopTimer = function() {
+    clearInterval(timerInterval);
+    eindTijd = ((Date.now() - startTijd) / 1000).toFixed(3); // afronden op duizendsten
+    document.getElementById('timer').textContent = `Eindtijd: ${eindTijd} seconden`;
+}
+
+  function updateTimer() {
+    const verstreken = Math.floor((Date.now() - startTijd) / 1000);
+    document.getElementById('timer').textContent = `Tijd: ${verstreken} seconden`;
+  }
+
+  // Aangepaste functie voor speeltijd:
+  function berekenSpeeltijd() {
+    return eindTijd; // correcte eindtijd
+  }
+
+  document.getElementById('opslaanScore').addEventListener('click', function() {
+    const naam = document.getElementById('spelerNaam').value.trim();
+    if (!naam || eindTijd === undefined) {
+      alert('Speel eerst het spel uit en vul je naam in!');
+      return;
+    }
+
+    const nieuweScoreRef = push(ref(db, 'scores'));
+    set(nieuweScoreRef, {
+      naam: naam,
+      tijd: parseFloat(eindTijd),
+      datum: Date.now()
+    });
+  });
+
+  const scoresRef = query(ref(db, 'scores'), orderByChild('tijd'), limitToFirst(5));
+
+  function laadScores() {
+    onValue(scoresRef, (snapshot) => {
+      const data = snapshot.val();
+      const scoresLijst = document.getElementById('scores');
+      scoresLijst.innerHTML = '';
+
+      for (let key in data) {
+        const score = data[key];
+        const li = document.createElement('li');
+        li.textContent = `${score.naam}: ${score.tijd} seconden`;
+        scoresLijst.appendChild(li);
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', laadScores);
+</script>
+
+
 </body>
 </html>
 

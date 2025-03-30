@@ -37,3 +37,34 @@ body {
         border-radius: 10px;
         margin-bottom: 1.5rem;
     }
+
+    #scorebord {
+        padding: 15px;
+        background-color: #eee;
+        border-radius: 10px;
+        width: 300px;
+        margin: 20px auto; 
+        text-align: center;
+    }
+    
+    #scores {
+        list-style-type: none;
+        padding: 0;
+    }
+    
+    #scores li {
+        padding: 5px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    #scoreOpslaan {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    #timer {
+        font-size: 20px;
+        font-weight: bold;
+        margin: 15px auto;
+        text-align: center;
+    }
