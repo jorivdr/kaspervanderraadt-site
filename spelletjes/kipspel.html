@@ -391,5 +391,15 @@ document.getElementById('btnJump').addEventListener('touchstart', jump);
   Kasper is verslagen!<br>
   Druk op Herstart en speel nog een keer!
 </div>
+
+<button id="backToStart" style="position:fixed; bottom:10px; left:10px; font-size:16px; padding:8px 16px;">Terug naar startpagina</button>
+
+<script>
+document.getElementById('backToStart').addEventListener('click', () => {
+  window.location.href = 'index.html';
+});
+</script>
 </body>
 </html>
+
+

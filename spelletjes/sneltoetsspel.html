@@ -47,6 +47,13 @@
       width: 45%;
       margin: 5px;
     }
+    #backToStart {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      font-size: 16px;
+      padding: 8px 16px;
+    }
   </style>
 </head>
 <body>
@@ -68,6 +75,9 @@
   <button id="btnSpeler1">🔴 Speler 1</button>
   <button id="btnSpeler2">🔵 Speler 2</button>
 </div>
+
+<!-- Terug naar startpagina knop -->
+<button id="backToStart">Terug naar startpagina</button>
 
 <script>
   let score1 = 0;
@@ -142,6 +152,11 @@
       spelActief = false;
     }
   }
+
+  // Terug naar overzicht
+  document.getElementById('backToStart').addEventListener('click', () => {
+    window.location.href = '../index.html';
+  });
 </script>
 
 </body>
