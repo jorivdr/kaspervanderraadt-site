@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kippenspel</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: #cceeff; }
+    canvas { display: none; margin: auto; background: #88cc88; }
+    .controls {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      gap: 10px;
+    }
+    button {
+      font-size: 20px;
+      padding: 10px 20px;
+    }
+    .hud {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      font-family: sans-serif;
+      font-size: 18px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 5px 10px;
+      border-radius: 8px;
+      display: none;
+    }
+    .character-select {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 2px solid black;
+      padding: 20px;
+      text-align: center;
+      z-index: 10;
+      display: block;
+    }
+    .restart-button {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="characterSelect" class="character-select">
+    <p><strong>Verzamel alle eieren en versla Kasper het varken!</strong></p>
+    <p>Kies je personage:</p>
+    <button id="chooseKip">Kip</button>
+    <button id="chooseHaan">Haan</button>
+  </div>
+
+  <canvas id="gameCanvas" width="400" height="300"></canvas>
+  <div class="controls" id="controls">
+    <button id="btnLeft">Links</button>
+    <button onclick="jump()">Spring</button>
+    <button id="btnRight">Rechts</button>
+  </div>
+  <div class="hud" id="hud">Eieren: 0</div>
+  <button class="restart-button" id="restartBtn">Herstart</button>
+  <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_64666e3db3.mp3?filename=birthday-party-111365.mp3" loop autoplay></audio>
+
+  <script>
+    // Selectie
+    const chooseKip = document.getElementById('chooseKip');
+    const chooseHaan = document.getElementById('chooseHaan');
+    const restartBtn = document.getElementById('restartBtn');
+    const bgMusic = document.getElementById('bgMusic');
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const hud = document.getElementById('hud');
+    const controls = document.getElementById('controls');
+    const characterSelect = document.getElementById('characterSelect');
+
+    chooseKip.addEventListener('click', () => selectCharacter('kip'));
+    chooseHaan.addEventListener('click', () => selectCharacter('haan'));
+    restartBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.location.href = window.location.href;
+});
+    bgMusic.volume = 0.2;
+
+    const gravity = 0.8;
+    const groundY = 270;
+    const levelWidth = 2000;
+    let collected = 0;
+    let character = 'kip';
+    let gameStarted = false;
+    let kasperActive = false;
+    let kasperHits = 0;
+    let confetti = [];
+    const keys = { left: false, right: false };
+
+    const kip = {
+      x: 50, y: 240, width: 30, height: 30, dx: 0, dy: 0, jumping: false
+    };
+
+    const kasper = {
+      x: 1500, y: 210, width: 40, height: 40, direction: 1
+    };
+
+    let scrollX = 0;
+
+    const obstacles = [
+      { x: 200, y: 240, width: 60, height: 30 },
+      { x: 320, y: 210, width: 60, height: 60 },
+      { x: 460, y: 180, width: 100, height: 90 },
+      { x: 620, y: 240, width: 80, height: 30 },
+      { x: 780, y: 210, width: 60, height: 60 },
+      { x: 960, y: 180, width: 80, height: 90 },
+      { x: 1400, y: 250, width: 150, height: 20 }
+    ];
+
+    const eieren = [
+      { x: 220, y: 210, collected: false },
+      { x: 340, y: 180, collected: false },
+      { x: 500, y: 150, collected: false },
+      { x: 790, y: 180, collected: false },
+      { x: 980, y: 150, collected: false }
+    ];
+
+    function drawCharacter(x, y) {
+      ctx.fillStyle = character === 'haan' ? '#ddddbb' : 'white';
+      ctx.beginPath();
+      ctx.ellipse(x + 15, y + 15, 15, 15, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'black';
+      ctx.beginPath();
+      ctx.arc(x + 20, y + 10, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'darkorange';
+      ctx.beginPath();
+      ctx.moveTo(x + 28, y + 14);
+      ctx.lineTo(x + 34, y + 17);
+      ctx.lineTo(x + 28, y + 20);
+      ctx.fill();
+      ctx.fillStyle = 'darkred';
+      ctx.beginPath();
+      if (character === 'haan') {
+        for (let i = 0; i < 5; i++) {
+          ctx.arc(x + 8 + i * 4, y + 4, 2.5, 0, Math.PI * 2);
+        }
+      } else {
+        ctx.arc(x + 12, y + 5, 3, 0, Math.PI * 2);
+        ctx.arc(x + 16, y + 3, 3, 0, Math.PI * 2);
+        ctx.arc(x + 20, y + 5, 3, 0, Math.PI * 2);
+      }
+      ctx.fill();
+      if (character === 'haan') {
+        ctx.fillStyle = 'darkred';
+        ctx.beginPath();
+        ctx.arc(x + 22, y + 22, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#224422';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x + 5, y + 10);
+        ctx.quadraticCurveTo(x - 10, y, x - 5, y + 20);
+        ctx.stroke();
+      }
+      ctx.strokeStyle = 'orange';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x + 10, y + 28);
+      ctx.lineTo(x + 10, y + 32);
+      ctx.moveTo(x + 20, y + 28);
+      ctx.lineTo(x + 20, y + 32);
+      ctx.stroke();
+    }
+
+    function drawKasper() {
+  if (!kasperActive) return;
+  const x = kasper.x - scrollX;
+  const y = kasper.y;
+
+  // Lichaam
+  ctx.fillStyle = 'pink';
+  ctx.beginPath();
+  ctx.ellipse(x + 20, y + 20, 20, 20, 0, 0, Math.PI * 2); // hoofd/lichaam
+  ctx.fill();
+
+  // Snuit
+  ctx.fillStyle = '#ffcccc';
+  ctx.beginPath();
+  ctx.ellipse(x + 20, y + 25, 12, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Neusgaten
+  ctx.fillStyle = 'black';
+  ctx.beginPath();
+  ctx.arc(x + 16, y + 25, 1.5, 0, Math.PI * 2);
+  ctx.arc(x + 24, y + 25, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Ogen
+  ctx.fillStyle = 'black';
+  ctx.beginPath();
+  ctx.arc(x + 13, y + 15, 2, 0, Math.PI * 2);
+  ctx.arc(x + 27, y + 15, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Oren
+  ctx.fillStyle = 'pink';
+  ctx.beginPath();
+  ctx.moveTo(x + 8, y + 5);
+  ctx.lineTo(x + 5, y - 5);
+  ctx.lineTo(x + 12, y + 3);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x + 32, y + 5);
+  ctx.lineTo(x + 35, y - 5);
+  ctx.lineTo(x + 28, y + 3);
+  ctx.fill();
+
+  // Poten
+  ctx.fillStyle = '#cc8899';
+  ctx.fillRect(x + 10, y + 38, 5, 5);
+  ctx.fillRect(x + 25, y + 38, 5, 5);
+}
+
+    function drawConfetti() {
+      confetti.forEach(dot => {
+        ctx.fillStyle = dot.color;
+        ctx.fillRect(dot.x - scrollX, dot.y, 3, 3);
+        dot.y += dot.dy;
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#654321';
+      ctx.fillRect(0, groundY, canvas.width, 30);
+      ctx.fillStyle = '#444';
+      obstacles.forEach(o => ctx.fillRect(o.x - scrollX, o.y, o.width, o.height));
+      eieren.forEach(ei => {
+        if (!ei.collected) {
+          ctx.fillStyle = 'white';
+          ctx.beginPath();
+          ctx.ellipse(ei.x - scrollX + 10, ei.y + 10, 6, 10, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = 'gray';
+          ctx.stroke();
+        }
+      });
+      drawKasper();
+      drawCharacter(kip.x, kip.y);
+      drawConfetti();
+    }
+
+    function checkCollisions() {
+      let onGround = kip.y + kip.height >= groundY;
+      for (const obs of obstacles) {
+        const relX = obs.x - scrollX;
+        if (kip.x + kip.width > relX && kip.x < relX + obs.width &&
+            kip.y + kip.height > obs.y && kip.y < obs.y + obs.height) {
+          if (kip.dy >= 0 && kip.y + kip.height - kip.dy <= obs.y) {
+            kip.y = obs.y - kip.height;
+            kip.dy = 0;
+            kip.jumping = false;
+            onGround = true;
+          }
+        }
+      }
+      if (kasperActive) {
+        const kx = kasper.x - scrollX;
+        if (kip.x + kip.width > kx && kip.x < kx + kasper.width &&
+            kip.y + kip.height > kasper.y && kip.y < kasper.y + kasper.height) {
+          if (kip.dy > 0 && kip.y + kip.height - kip.dy <= kasper.y) {
+            kip.dy = -8;
+            kasperHits++;
+            if (kasperHits >= 3) {
+  kasperActive = false;
+  restartBtn.style.display = 'block';
+  document.getElementById('victoryMessage').style.display = 'block';
+  document.getElementById('victoryMessage').style.display = 'block';
+              for (let i = 0; i < 100; i++) {
+                confetti.push({
+                  x: kasper.x + Math.random() * kasper.width,
+                  y: kasper.y + Math.random() * kasper.height,
+                  dy: Math.random() * 3 + 1,
+                  color: `hsl(${Math.random() * 360}, 100%, 50%)`
+                });
+              }
+            }
+          }
+        }
+      }
+      return onGround;
+    }
+
+    function checkEieren() {
+      for (const ei of eieren) {
+        const relX = ei.x - scrollX;
+        if (!ei.collected &&
+            kip.x < relX + 15 && kip.x + kip.width > relX &&
+            kip.y < ei.y + 20 && kip.y + kip.height > ei.y) {
+          ei.collected = true;
+          collected++;
+          hud.textContent = `Eieren: ${collected}`;
+          if (collected === eieren.length) {
+            kasperActive = true;
+          }
+        }
+      }
+    }
+
+    function update() {
+      if (!gameStarted) return;
+      kip.dx = 0;
+      if (keys.left) kip.dx = -3;
+      if (keys.right) kip.dx = 3;
+      kip.dy += gravity;
+      kip.y += kip.dy;
+      kip.x += kip.dx;
+      if (kip.x > 200 && scrollX + 200 < levelWidth - canvas.width) {
+        scrollX += kip.x - 200;
+        kip.x = 200;
+      }
+      if (kip.x < 0) kip.x = 0;
+      if (kip.y + kip.height >= groundY) {
+        kip.y = groundY - kip.height;
+        kip.dy = 0;
+        kip.jumping = false;
+      }
+      if (checkCollisions()) kip.jumping = false;
+      checkEieren();
+      if (kasperActive) {
+        kasper.x += kasper.direction * 1.5;
+        if (kasper.x < 1400 || kasper.x + kasper.width > 1550) kasper.direction *= -1;
+      }
+      draw();
+      requestAnimationFrame(update);
+    }
+
+    function jump() {
+      if (!kip.jumping) {
+        kip.dy = -12;
+        if (keys.left) kip.dx = -3;
+        if (keys.right) kip.dx = 3;
+        kip.jumping = true;
+      }
+    }
+
+    function selectCharacter(type) {
+      character = type;
+      characterSelect.style.display = 'none';
+      canvas.style.display = 'block';
+      controls.style.display = 'flex';
+      hud.style.display = 'block';
+      gameStarted = true;
+      update();
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') keys.left = true;
+      if (e.key === 'ArrowRight') keys.right = true;
+      if (e.key === 'ArrowUp') jump();
+    });
+    document.addEventListener('keyup', e => {
+      if (e.key === 'ArrowLeft') keys.left = false;
+      if (e.key === 'ArrowRight') keys.right = false;
+    });
+
+    document.getElementById('btnLeft').addEventListener('touchstart', () => keys.left = true);
+    document.getElementById('btnLeft').addEventListener('touchend', () => keys.left = false);
+    document.getElementById('btnRight').addEventListener('touchstart', () => keys.right = true);
+    document.getElementById('btnRight').addEventListener('touchend', () => keys.right = false);
+  </script>
+<div id="victoryMessage" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:2px solid black; padding:20px; text-align:center; z-index:20; font-family:sans-serif; font-size:18px;">
+  🎉 <strong>Gefeliciteerd!</strong><br>
+  Kasper is verslagen!<br>
+  Druk op Herstart en speel nog een keer!
+</div>
+</body>
+</html>

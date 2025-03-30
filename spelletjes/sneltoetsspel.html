@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tweespeler Klikspel met Toetsenbord</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .score {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+
+        #winnaar {
+            font-weight: bold;
+            font-size: 22px;
+            color: green;
+            margin-top: 20px;
+        }
+
+        .info {
+            font-size: 16px;
+            margin-top: 15px;
+            color: #555;
+        }
+
+        button {
+            font-size: 18px;
+            padding: 8px 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        #aftel {
+            font-size: 24px;
+            color: blue;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Tweespeler Klikspel met Toetsenbord</h1>
+
+<div class="info">
+    Druk op "A" voor Speler 1 en "L" voor Speler 2
+</div>
+
+<button id="startknop">Start spel</button>
+
+<div id="aftel"></div>
+
+<div class="score">
+    Speler 1 punten: <span id="score1">0</span>
+</div>
+<div class="score">
+    Speler 2 punten: <span id="score2">0</span>
+</div>
+
+<div id="winnaar"></div>
+
+<script>
+    let score1 = 0;
+    let score2 = 0;
+    const maxScore = 10;
+    let spelActief = false;
+
+    document.getElementById('startknop').addEventListener('click', startSpel);
+
+    function startSpel() {
+        score1 = 0;
+        score2 = 0;
+        spelActief = false;
+        document.getElementById('score1').textContent = score1;
+        document.getElementById('score2').textContent = score2;
+        document.getElementById('winnaar').textContent = '';
+
+        let aftellen = 3;
+        document.getElementById('aftel').textContent = aftellen;
+
+        const interval = setInterval(() => {
+            aftellen--;
+            if (aftellen > 0) {
+                document.getElementById('aftel').textContent = aftellen;
+            } else if (aftellen === 0) {
+                document.getElementById('aftel').textContent = 'GO!';
+            } else {
+                clearInterval(interval);
+                document.getElementById('aftel').textContent = '';
+                spelActief = true;
+            }
+        }, 1000);
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (!spelActief) return;
+
+        if (event.key === 'a' || event.key === 'A') {
+            verhoogScore('speler1');
+        } else if (event.key === 'l' || event.key === 'L') {
+            verhoogScore('speler2');
+        }
+    });
+
+    function verhoogScore(speler) {
+        if (speler === 'speler1') {
+            score1++;
+            document.getElementById('score1').textContent = score1;
+        } else if (speler === 'speler2') {
+            score2++;
+            document.getElementById('score2').textContent = score2;
+        }
+
+        controleerWinnaar();
+    }
+
+    function controleerWinnaar() {
+        if (score1 === maxScore) {
+            document.getElementById('winnaar').textContent = '🎉 Speler 1 heeft gewonnen!';
+            spelActief = false;
+        } else if (score2 === maxScore) {
+            document.getElementById('winnaar').textContent = '🎉 Speler 2 heeft gewonnen!';
+            spelActief = false;
+        }
+    }
+</script>
+
+</body>
+</html>
