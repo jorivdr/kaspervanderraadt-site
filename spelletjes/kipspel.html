@@ -70,7 +70,7 @@
 
 <div id="canvasWrapper" style="position: relative; display: inline-block;">
   <canvas id="gameCanvas" width="400" height="300"></canvas>
-  <div id="victoryMessage">
+  <div id="victoryMessage" style="display: none;">
     🎉 <strong>Gefeliciteerd!</strong><br>
     Kasper is verslagen!<br>
     Druk op Herstart en speel nog een keer!
@@ -315,7 +315,6 @@ chooseHaan.addEventListener('click', () => {
 stopTimer();
   kasperActive = false;
   restartBtn.style.display = 'block';
-  document.getElementById('victoryMessage').style.display = 'block';
   document.getElementById('victoryMessage').style.display = 'block';
               for (let i = 0; i < 100; i++) {
                 confetti.push({
