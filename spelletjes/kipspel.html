@@ -68,7 +68,15 @@
   </div>
 
 
+<div id="canvasWrapper" style="position: relative; display: inline-block;">
   <canvas id="gameCanvas" width="400" height="300"></canvas>
+  <div id="victoryMessage">
+    🎉 <strong>Gefeliciteerd!</strong><br>
+    Kasper is verslagen!<br>
+    Druk op Herstart en speel nog een keer!
+  </div>
+</div>
+
 <div id="timer">Tijd: 0 seconden</div>
 <input type="text" id="spelerNaam" placeholder="Voer je naam in">
 <button id="opslaanScore">Score opslaan</button>
@@ -405,11 +413,6 @@ stopTimer();
     document.getElementById('btnRight').addEventListener('touchend', () => keys.right = false);
 document.getElementById('btnJump').addEventListener('touchstart', jump);
   </script>
-<div id="victoryMessage" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; border:2px solid black; padding:20px; text-align:center; z-index:20; font-family:sans-serif; font-size:18px;">
-  🎉 <strong>Gefeliciteerd!</strong><br>
-  Kasper is verslagen!<br>
-  Druk op Herstart en speel nog een keer!
-</div>
 
 <button id="backToStart" style="position:fixed; top:0px; left:10px; font-size:16px; padding:8px 16px; z-index:100;">
   Terug naar spelletjes pagina
