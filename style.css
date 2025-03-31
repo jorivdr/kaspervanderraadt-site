@@ -68,3 +68,48 @@ body {
         margin: 15px auto;
         text-align: center;
     }
+
+    @media (max-width: 600px) {
+        body {
+            font-size: 16px;
+        }
+    
+        main {
+            padding: 1rem;
+        }
+    
+        header, footer {
+            padding: 0.5rem;
+            font-size: 14px;
+        }
+    
+        nav ul li {
+            display: block;
+            margin: 0.3rem 0;
+        }
+    
+        nav ul li a {
+            display: block;
+            padding: 0.5rem;
+            font-size: 14px;
+        }
+    
+        .hoofdfoto {
+            max-width: 90%;
+        }
+    
+        #scorebord {
+            width: 90%;
+            font-size: 14px;
+        }
+    
+        #timer {
+            font-size: 16px;
+        }
+    
+        button {
+            font-size: 16px;
+            padding: 10px 16px;
+        }
+    }
+    
