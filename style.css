@@ -108,15 +108,16 @@ body {
     width: 100%;
     padding: 0 10px;
     box-sizing: border-box;
-}
-
-#controls button {
+    z-index: 100; /* Zorg dat ze boven andere elementen staan */
+  }
+  
+  #controls button {
     flex: 1;
     margin: 0 5px;
     padding: 15px 0;
     font-size: 18px;
     border-radius: 10px;
-}
+  }
   
 #canvasWrapper {
   position: relative;
