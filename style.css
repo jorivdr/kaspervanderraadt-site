@@ -68,3 +68,34 @@ body {
         margin: 15px auto;
         text-align: center;
     }
+
+    /* Responsieve verbeteringen voor telefoons */
+@media (max-width: 768px) {
+
+    #spelCanvas {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 10px auto;
+    }
+  
+    #timer, #scoreOpslaan, #scorebord {
+      width: 90%;
+      margin: 10px auto;
+      font-size: 16px;
+    }
+  
+    #scorebord {
+      padding: 10px;
+    }
+  
+    input[type="text"], button {
+      width: 100%;
+      margin: 5px 0;
+      padding: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+  
+  }
+  
