@@ -446,6 +446,7 @@ document.getElementById('backToStart').addEventListener('click', () => {
   let startTijd;
   let timerInterval;
   let eindTijd;
+  let scoreOpgeslagen = false;
 
   window.startTimer = function() {
     startTijd = Date.now();
@@ -468,20 +469,29 @@ document.getElementById('backToStart').addEventListener('click', () => {
     return eindTijd; // correcte eindtijd
   }
 
-  document.getElementById('opslaanScore').addEventListener('click', function() {
-    const naam = document.getElementById('spelerNaam').value.trim();
-    if (!naam || eindTijd === undefined) {
-      alert('Speel eerst het spel uit en vul je naam in!');
-      return;
-    }
+document.getElementById('opslaanScore').addEventListener('click', function() {
+  if (scoreOpgeslagen) {
+    alert("Je hebt je score al opgeslagen!");
+    return;
+  }
 
-    const nieuweScoreRef = push(ref(db, 'scores'));
-    set(nieuweScoreRef, {
-      naam: naam,
-      tijd: parseFloat(eindTijd),
-      datum: Date.now()
-    });
+  const naam = document.getElementById('spelerNaam').value.trim();
+  if (!naam || eindTijd === undefined) {
+    alert('Speel eerst het spel uit en vul je naam in!');
+    return;
+  }
+
+  const nieuweScoreRef = push(ref(db, 'scores'));
+  set(nieuweScoreRef, {
+    naam: naam,
+    tijd: parseFloat(eindTijd),
+    datum: Date.now()
   });
+
+  scoreOpgeslagen = true;
+  document.getElementById('opslaanScore').disabled = true;
+  document.getElementById('opslaanScore').textContent = "Score opgeslagen!";
+});
 
   const scoresRef = query(ref(db, 'scores'), orderByChild('tijd'), limitToFirst(5));
 
