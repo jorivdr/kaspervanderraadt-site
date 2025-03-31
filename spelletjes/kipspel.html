@@ -305,11 +305,6 @@ chooseHaan.addEventListener('click', () => {
             kasperHits++;
             if (kasperHits >= 3) {
 stopTimer();
-  window.stopTimer = function() {
-    clearInterval(timerInterval);
-    eindTijd = ((Date.now() - startTijd) / 1000).toFixed(3); // afronden op duizendsten
-    document.getElementById('timer').textContent = `Eindtijd: ${eindTijd} seconden`;
-}
   kasperActive = false;
   restartBtn.style.display = 'block';
   document.getElementById('victoryMessage').style.display = 'block';
