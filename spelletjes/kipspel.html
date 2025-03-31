@@ -123,6 +123,7 @@ chooseHaan.addEventListener('click', () => {
     let gameStarted = false;
     let kasperActive = false;
     let kasperHits = 0;
+    let kasperLaatsteHitTijd = 0;
     let confetti = [];
     const keys = { left: false, right: false };
 
@@ -283,51 +284,68 @@ chooseHaan.addEventListener('click', () => {
     }
 
     function checkCollisions() {
-      let onGround = kip.y + kip.height >= groundY;
-      for (const obs of obstacles) {
-        const relX = obs.x - scrollX;
-        if (kip.x + kip.width > relX && kip.x < relX + obs.width &&
-            kip.y + kip.height > obs.y && kip.y < obs.y + obs.height) {
-          if (kip.dy >= 0 && kip.y + kip.height - kip.dy <= obs.y) {
-            kip.y = obs.y - kip.height;
-            kip.dy = 0;
-            kip.jumping = false;
-            onGround = true;
-          }
-        }
+  let onGround = kip.y + kip.height >= groundY;
+
+  for (const obs of obstacles) {
+    const relX = obs.x - scrollX;
+    if (
+      kip.x + kip.width > relX &&
+      kip.x < relX + obs.width &&
+      kip.y + kip.height > obs.y &&
+      kip.y < obs.y + obs.height
+    ) {
+      if (kip.dy >= 0 && kip.y + kip.height - kip.dy <= obs.y) {
+        kip.y = obs.y - kip.height;
+        kip.dy = 0;
+        kip.jumping = false;
+        onGround = true;
       }
-      if (kasperActive) {
-        const kx = kasper.x - scrollX;
-        if (kip.x + kip.width > kx && kip.x < kx + kasper.width &&
-            kip.y + kip.height > kasper.y && kip.y < kasper.y + kasper.height) {
-          if (kip.dy > 0 && kip.y + kip.height - kip.dy <= kasper.y) {
-            kip.dy = -8;
-            kasperHits++;
-            if (kasperHits >= 3) {
-stopTimer();
-  window.stopTimer = function() {
-    clearInterval(timerInterval);
-    eindTijd = ((Date.now() - startTijd) / 1000).toFixed(3); // afronden op duizendsten
-    document.getElementById('timer').textContent = `Eindtijd: ${eindTijd} seconden`;
-}
-  kasperActive = false;
-  restartBtn.style.display = 'block';
-  document.getElementById('victoryMessage').style.display = 'block';
-  document.getElementById('victoryMessage').style.display = 'block';
-              for (let i = 0; i < 100; i++) {
-                confetti.push({
-                  x: kasper.x + Math.random() * kasper.width,
-                  y: kasper.y + Math.random() * kasper.height,
-                  dy: Math.random() * 3 + 1,
-                  color: `hsl(${Math.random() * 360}, 100%, 50%)`
-                });
-              }
-            }
-          }
-        }
-      }
-      return onGround;
     }
+  }
+
+  if (kasperActive) {
+    const kx = kasper.x - scrollX;
+    if (
+      kip.x + kip.width > kx &&
+      kip.x < kx + kasper.width &&
+      kip.y + kip.height > kasper.y &&
+      kip.y < kasper.y + kasper.height
+    ) {
+     if (kip.dy > 0 && kip.y + kip.height - kip.dy <= kasper.y) {
+  const nu = Date.now();
+  if (nu - kasperLaatsteHitTijd > 500) {  // 500 ms = 1 seconde cooldown
+    kasperLaatsteHitTijd = nu;
+    kip.y = kasper.y - kip.height; // positioneer kip bovenop Kasper
+kip.dy = -springSnelheid * 1.1; // stuiter iets sterker dan normale sprong
+kasperHits++;
+
+
+    console.log(`Kasper geraakt! Aantal hits: ${kasperHits}`);
+
+    if (kasperHits >= 3) {
+      stopTimer();
+      kasperActive = false;
+      restartBtn.style.display = 'block';
+      document.getElementById('victoryMessage').style.display = 'block';
+      for (let i = 0; i < 100; i++) {
+        confetti.push({
+          x: kasper.x + Math.random() * kasper.width,
+          y: kasper.y + Math.random() * kasper.height,
+          dy: Math.random() * 3 + 1,
+          color: `hsl(${Math.random() * 360}, 100%, 50%)`
+        });
+      }
+    }
+  }
+}
+
+
+    }
+  }
+
+  return onGround;
+}
+
 
     function checkEieren() {
       for (const ei of eieren) {
@@ -345,54 +363,72 @@ stopTimer();
       }
     }
 
-    function update() {
-      if (!gameStarted) return;
-      kip.dx = 0;
-      if (keys.left) kip.dx = -3;
-      if (keys.right) kip.dx = 3;
-      kip.dy += gravity;
-      kip.y += kip.dy;
-      kip.x += kip.dx;
-      if (kip.x > 200 && scrollX + 200 < levelWidth - canvas.width) {
-        scrollX += kip.x - 200;
-        kip.x = 200;
-      }
-      if (kip.x < 0) kip.x = 0;
-      if (kip.y + kip.height >= groundY) {
-        kip.y = groundY - kip.height;
-        kip.dy = 0;
-        kip.jumping = false;
-      }
-      if (checkCollisions()) kip.jumping = false;
-      checkEieren();
-      if (kasperActive) {
-        kasper.x += kasper.direction * 1.5;
-        if (kasper.x < 1400 || kasper.x + kasper.width > 1550) kasper.direction *= -1;
-      }
-      draw();
-      requestAnimationFrame(update);
-    }
 
-    function jump() {
-      if (!kip.jumping) {
-        kip.dy = -12;
-        if (keys.left) kip.dx = -3;
-        if (keys.right) kip.dx = 3;
-        kip.jumping = true;
-      }
-    }
+  const snelheid = 250;         // pixels per seconde horizontaal
+  const springSnelheid = 450;   // pixels per seconde omhoog
+  const zwaartekracht = 950;    // pixels per seconde^2
+
+    function update(nu = performance.now()) {
+  if (!gameStarted) return;
+
+  const delta = (nu - vorigeTijd) / 1000; // tijd tussen frames in seconden
+  vorigeTijd = nu;
+
+
+
+  kip.dx = 0;
+  if (keys.left) kip.dx = -snelheid;
+  if (keys.right) kip.dx = snelheid;
+
+  kip.dy += zwaartekracht * delta;
+  kip.y += kip.dy * delta;
+  kip.x += kip.dx * delta;
+
+  if (kip.x > 200 && scrollX + 200 < levelWidth - canvas.width) {
+    scrollX += kip.x - 200;
+    kip.x = 200;
+  }
+
+  if (kip.x < 0) kip.x = 0;
+
+  if (kip.y + kip.height >= groundY) {
+    kip.y = groundY - kip.height;
+    kip.dy = 0;
+    kip.jumping = false;
+  }
+
+  if (checkCollisions()) kip.jumping = false;
+  checkEieren();
+
+  if (kasperActive) {
+    kasper.x += kasper.direction * snelheid * delta * 0.5;
+    if (kasper.x < 1400 || kasper.x + kasper.width > 1550) kasper.direction *= -1;
+  }
+
+  draw();
+  requestAnimationFrame(update);
+}
+
+function jump() {
+  if (!kip.jumping) {
+    kip.dy = -springSnelheid;
+    kip.jumping = true;
+  }
+}
+
 
     function selectCharacter(type) {
-      canvas.setAttribute('tabindex', '0');
-      canvas.focus();
-      character = type;
-      characterSelect.style.display = 'none';
-      canvas.style.display = 'block';
-      controls.style.display = 'flex';
-      hud.style.display = 'block';
-      gameStarted = true;
-      update();
-    }
+  canvas.setAttribute('tabindex', '0');
+  canvas.focus();
+  character = type;
+  characterSelect.style.display = 'none';
+  canvas.style.display = 'block';
+  controls.style.display = 'flex';
+  hud.style.display = 'block';
+  gameStarted = true;
+  vorigeTijd = performance.now(); // <-- voeg deze regel toe
+  requestAnimationFrame(update);
+}
 
     document.addEventListener('keydown', e => {
       if (e.key === 'ArrowLeft') keys.left = true;
@@ -440,13 +476,16 @@ document.getElementById('backToStart').addEventListener('click', () => {
     appId: "1:405878767630:web:468a39dbdc59820337fc5f"
   };
 
+  // Firebase setup
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
+ // Algemene variabelen
   let startTijd;
   let timerInterval;
   let eindTijd;
   let scoreOpgeslagen = false;
+  let vorigeTijd = performance.now();
 
   window.startTimer = function() {
     startTijd = Date.now();
