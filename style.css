@@ -99,37 +99,73 @@ body {
   
   }
   
-  /* Besturingsknoppen netjes naast elkaar */
-#controls {
+  #controls {
     display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 15px;
-  }
-  
-  #controls button {
+    justify-content: space-around;
+    position: fixed;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+#controls button {
     flex: 1;
-    padding: 12px 0;
-    font-size: 16px;
-  }
-  
-  /* Pop-up "Gefeliciteerd" centreren */
-  #popup {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 15px;
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
-    text-align: center;
+    margin: 0 5px;
+    padding: 15px 0;
     font-size: 18px;
-    z-index: 1000;
-    display: none; /* Zet dit op block via JS als het spel gewonnen is */
-  }
+    border-radius: 10px;
+}
+  
+#canvasWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+#popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 300px;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  text-align: center;
+  font-size: 18px;
+  z-index: 10;
+  display: none; /* Toon via JS */
+}
+
   
   /* Zorgen dat het canvas-container relative is voor centrering */
   #canvasContainer {
     position: relative;
     display: inline-block;
   }
+
+  #gameCanvas {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+#victoryMessage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border: 2px solid black;
+  padding: 20px;
+  text-align: center;
+  z-index: 20;
+  font-family: sans-serif;
+  font-size: 18px;
+  width: 80%;
+  max-width: 300px;
+  display: none;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
