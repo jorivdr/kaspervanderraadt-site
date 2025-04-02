@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Ruimte Snake</title>
+  <style>
+    body {
+      background: black url('background_stars.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      overflow: hidden;
+      font-family: sans-serif;
+      color: white;
+      text-align: center;
+    }
+    canvas {
+      display: block;
+      margin: 20px auto;
+      border: 2px solid white;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+    #ui {
+      margin-top: 10px;
+    }
+    #leaderboard {
+      margin-top: 20px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚀 Ruimte Snake</h1>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <div id="ui">
+    <p id="scoreDisplay">Score: 0 | Level: 1</p>
+    <p id="message"></p>
+  </div>
+  <div id="leaderboard">
+    <h3>Highscores</h3>
+    <ol id="highscoreList"></ol>
+  </div>
+  <script src="ruimte_snake_geavanceerd.js"></script>
+</body>
+</html>
