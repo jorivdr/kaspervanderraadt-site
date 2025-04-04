@@ -1,8 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ruimte Snake</title>
   <style>
     body {
@@ -15,17 +15,35 @@
       text-align: center;
     }
     canvas {
-      display: block;
-      margin: 20px auto;
+      width: 90vw;
+      max-width: 800px;
+      height: 90vw;
+      max-height: 600px;
       border: 2px solid white;
       background-color: rgba(0, 0, 0, 0.7);
+      display: block;
+      margin: 20px auto;
+      image-rendering: pixelated;
     }
-    #ui {
+    #ui, #controls {
       margin-top: 10px;
     }
     #leaderboard {
       margin-top: 20px;
       font-size: 0.9em;
+    }
+    .btn {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      background-color: #444;
+      color: white;
+    }
+    .btn:hover {
+      background-color: #666;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -36,10 +54,23 @@
     <p id="scoreDisplay">Score: 0 | Level: 1</p>
     <p id="message"></p>
   </div>
+  <div id="controls">
+    <button class="btn" onclick="simulateKey('ArrowLeft')">⬅️ Links</button>
+    <button class="btn" onclick="simulateKey('ArrowRight')">➡️ Rechts</button>
+    <br>
+    <a href="/spelletjes" class="btn">🎮 Spelletjespagina</a>
+    <a href="/" class="btn">🏠 Startpagina</a>
+  </div>
   <div id="leaderboard">
-    <h3>Highscores</h3>
+    <h3>🏆 Highscores</h3>
     <ol id="highscoreList"></ol>
   </div>
   <script src="ruimte_snake_geavanceerd.js"></script>
+  <script>
+    function simulateKey(key) {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: key }));
+    }
+  </script>
 </body>
 </html>
+
