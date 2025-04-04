@@ -1,73 +1,26 @@
 <!DOCTYPE html>
-<html lang="nl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ruimte Snake</title>
-  <style>
-    body {
-      background: black url('background_stars.jpg') no-repeat center center fixed;
-      background-size: cover;
-      margin: 0;
-      overflow: hidden;
-      font-family: sans-serif;
-      color: white;
-      text-align: center;
-    }
-    canvas {
-      width: 90vw;
-      max-width: 800px;
-      height: 90vw;
-      max-height: 600px;
-      border: 2px solid white;
-      background-color: rgba(0, 0, 0, 0.7);
-      display: block;
-      margin: 20px auto;
-      image-rendering: pixelated;
-    }
-    #ui {
-      margin-top: 10px;
-    }
-    #leaderboard {
-      margin-top: 20px;
-      font-size: 0.9em;
-    }
-  </style>
-</head>
-<body>
-  <h1>🚀 Ruimte Snake</h1>
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
-  <div id="ui">
-    <p id="scoreDisplay">Score: 0 | Level: 1</p>
-    <p id="message"></p>
-  </div>
-  <div id="leaderboard">
-    <h3>Highscores</h3>
-    <ol id="highscoreList"></ol>
-  </div>
-  <script src="ruimte_snake_geavanceerd.js"></script>
-  <script>
-    let touchStartX = 0, touchStartY = 0;
-    document.addEventListener('touchstart', e => {
-      const touch = e.touches[0];
-      touchStartX = touch.clientX;
-      touchStartY = touch.clientY;
-    });
-    document.addEventListener('touchmove', e => {
-      if (!touchStartX || !touchStartY) return;
-      const touch = e.touches[0];
-      const dx = touch.clientX - touchStartX;
-      const dy = touch.clientY - touchStartY;
-      if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 20) document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
-        else if (dx < -20) document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }));
-      } else {
-        if (dy > 20) document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
-        else if (dy < -20) document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
-      }
-      touchStartX = 0;
-      touchStartY = 0;
-    });
-  </script>
-</body>
-</html>
+    <html lang="nl">
+    <head>
+        <meta charset="UTF-8">
+        <title>Kasper's Spelletjes</title>
+        <link rel="stylesheet" href="../style.css">
+    </head>
+    <body>
+        <header>
+            <h1>Kasper's Spelletjes</h1>
+        </header>
+        <main>
+            <nav>
+                <ul>
+                    <li><a href="kipspel.html">Kipspel</a></li>
+                    <li><a href="sneltoetsspel.html">Sneltoetsspel</a></li>
+                    <li><a href="./ruimte-snake/index.html">Ruimte Snake</a></li>
+                </ul>
+            </nav>
+            <a href="../index.html">Terug naar startpagina</a>
+        </main>
+        <footer>
+            &copy; 2025 Kasper van der Raadt
+        </footer>
+    </body>
+    </html>
