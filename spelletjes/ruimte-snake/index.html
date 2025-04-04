@@ -29,8 +29,25 @@
       margin-top: 10px;
     }
     #leaderboard {
-      margin-top: 20px;
-      font-size: 0.9em;
+      margin: 30px auto;
+      max-width: 400px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid #888;
+      border-radius: 8px;
+      padding: 10px;
+    }
+    #leaderboard h3 {
+      margin: 0 0 10px;
+    }
+    #highscoreList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+    }
+    #highscoreList li {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
     .btn {
       padding: 10px 20px;
@@ -46,6 +63,52 @@
       cursor: pointer;
     }
   </style>
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+    apiKey: "AIzaSyAgaJvSnaDe_2XJbEDpoug6PwKBYG9Zi5Y",
+    authDomain: "website-kasper-20d0d.firebaseapp.com",
+    databaseURL: "https://website-kasper-20d0d-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "website-kasper-20d0d",
+    storageBucket: "website-kasper-20d0d.firebasestorage.app",
+    messagingSenderId: "405878767630",
+    appId: "1:405878767630:web:468a39dbdc59820337fc5f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.submitSnakeScore = async function(name, score) {
+      try {
+        await addDoc(collection(db, "snake_highscores"), {
+          name: name,
+          score: score,
+          timestamp: serverTimestamp()
+        });
+        fetchSnakeHighscores();
+      } catch (e) {
+        console.error("Fout bij opslaan score:", e);
+      }
+    }
+
+    window.fetchSnakeHighscores = async function() {
+      const hsList = document.getElementById('highscoreList');
+      hsList.innerHTML = '';
+      const q = query(collection(db, "snake_highscores"), orderBy("score", "desc"), limit(10));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const li = document.createElement('li');
+        li.textContent = `${data.name}: ${data.score} punten`;
+        hsList.appendChild(li);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchSnakeHighscores);
+  </script>
 </head>
 <body>
   <h1>🚀 Ruimte Snake</h1>
@@ -73,4 +136,3 @@
   </script>
 </body>
 </html>
-
